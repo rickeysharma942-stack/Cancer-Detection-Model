@@ -172,36 +172,19 @@ Bash
 # Upgrade Core Package Managers
 pip install --upgrade pip setuptools wheel
 
-### 🔬 Validation Strategy & Preventative Leakage Protocols
-To ensure robust clinical generalization and prevent optimistic performance inflation, the framework employs strict data partitioning procedures:
+## 🔬 Validation Strategy & Preventative Leakage Protocols
 
-Patient-Level Stratified Splits: Images originating from the same patient are strictly restricted to a single data fold (Train, Validation, or Test). Inter-slide patch mixing across splits is prevented.
+In clinical machine learning applications, standard random sampling often leads to severe **data leakage**, resulting in deceptively high training metrics that fail to generalize to real-world hospital environments. This framework enforces strict partition boundaries across data ingestion, processing, cross-validation, and deployment.
 
-5-Fold Stratified Cross-Validation: All benchmarking numbers represent mean metrics derived across 5 distinct CV folds.
+---
 
-Leakage-Free Preprocessing: Scaling parameters (e.g., mean/std normalization values, PCA transformation matrices) are calculated exclusively on training partitions before application to validation/testing subsets.
+### 1. Patient-Level Grouped Splitting Strategy
 
-### ⚠️ Clinical & Medical Disclaimer
-IMPORTANT CLINICAL NOTICE
+Medical imaging datasets frequently contain multiple region-of-interest (ROI) crops, consecutive CT/MRI slices, or follow-up scans from the same individual. 
 
-This software repository is designed strictly for academic research, educational purposes, and methodology verification. It is NOT a certified diagnostic medical device and has not received authorization from the U.S. Food and Drug Administration (FDA), CE Mark medical regulators, or equivalent global regulatory authorities.
+* **The Leakage Risk**: If patches from **Patient $A$** are present in both the training set and validation set, the model memorizes patient-specific biological artifacts (e.g., unique tissue textures, scanner calibration noise, anatomical markers) rather than learning diagnostic pathology.
+* **Our Solution**: All dataset splits are constructed at the **Patient ID Group Level** using `GroupKFold` and `GroupShuffleSplit`. 
 
-This software MUST NOT be used as a standalone diagnostic tool in direct clinical decision-making, patient treatment planning, or medical triage. All diagnostic outputs derived from this model must be independently validated by licensed board-certified pathologists and radiologists.
-### 🤝 Contributing
-We welcome contributions from computational biologists, machine learning researchers, and clinical experts!
+$$S_{\text{train}} \cap S_{\text{val}} \cap S_{\text{test}} = \emptyset \quad \text{where } S = \{\text{Patient ID}_1, \text{Patient ID}_2, \dots, \text{Patient ID}_N\}$$
 
-Fork the repository.
-
-Create your feature branch (git checkout -b feature/AdvancedContrastiveLoss).
-
-Commit your changes (git commit -m 'Add SupCon Loss backbone support').
-
-Push to your branch (git push origin feature/AdvancedContrastiveLoss).
-
-Open a Pull Request.
-### 📄 License
-Distributed under the MIT License. See LICENSE for more information.
-
-Developed with ❤️ by Rickey Sharma
-
-Advancing Health Equity & Diagnostics through Computational Intelligence
+All slides, slices, and extracted features belonging to a single unique patient are strictly locked inside a single partition split.
