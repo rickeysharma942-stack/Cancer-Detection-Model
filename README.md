@@ -171,7 +171,8 @@ Step 2: Install Hardware Accelerated Dependencies
 Bash
 # Upgrade Core Package Managers
 pip install --upgrade pip setuptools wheel
-🔬 Validation Strategy & Preventative Leakage Protocols
+
+## 🔬 Validation Strategy & Preventative Leakage Protocols
 To ensure robust clinical generalization and prevent optimistic performance inflation, the framework employs strict data partitioning procedures:
 
 Patient-Level Stratified Splits: Images originating from the same patient are strictly restricted to a single data fold (Train, Validation, or Test). Inter-slide patch mixing across splits is prevented.
@@ -180,14 +181,13 @@ Patient-Level Stratified Splits: Images originating from the same patient are st
 
 Leakage-Free Preprocessing: Scaling parameters (e.g., mean/std normalization values, PCA transformation matrices) are calculated exclusively on training partitions before application to validation/testing subsets.
 
-⚠️ Clinical & Medical Disclaimer
+## ⚠️ Clinical & Medical Disclaimer
 IMPORTANT CLINICAL NOTICE
 
 This software repository is designed strictly for academic research, educational purposes, and methodology verification. It is NOT a certified diagnostic medical device and has not received authorization from the U.S. Food and Drug Administration (FDA), CE Mark medical regulators, or equivalent global regulatory authorities.
 
 This software MUST NOT be used as a standalone diagnostic tool in direct clinical decision-making, patient treatment planning, or medical triage. All diagnostic outputs derived from this model must be independently validated by licensed board-certified pathologists and radiologists.
-
-🤝 Contributing
+## 🤝 Contributing
 We welcome contributions from computational biologists, machine learning researchers, and clinical experts!
 
 Fork the repository.
@@ -199,18 +199,9 @@ Commit your changes (git commit -m 'Add SupCon Loss backbone support').
 Push to your branch (git push origin feature/AdvancedContrastiveLoss).
 
 Open a Pull Request.
-
-Please review CONTRIBUTING.md prior to submission for code style guidelines and test suite benchmarks.
-
-📄 License
+## 📄 License
 Distributed under the MIT License. See LICENSE for more information.
 
 Developed with ❤️ by Rickey Sharma
 
 Advancing Health Equity & Diagnostics through Computational Intelligence
-
-# Install PyTorch with CUDA 12.1 support
-pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu121](https://download.pytorch.org/whl/cu121)
-
-# Install Project Requirements
-pip install -r requirements.txt
