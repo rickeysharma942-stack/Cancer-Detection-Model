@@ -23,7 +23,7 @@
 [Medical Disclaimer](#-clinical--medical-disclaimer)
 
 ---
-
+### Live model: https://cancer-detection-model-zqpghotdvbndvtm2h6zywn.streamlit.app/
 </div>
 
 ## 📌 Executive Summary
