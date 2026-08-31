@@ -11,7 +11,9 @@ Run:
     streamlit run app.py
 """
 
+import io
 import os
+import pickle
 import urllib.request
 
 import numpy as np
@@ -70,6 +72,31 @@ def build_val_transform(img_size=224):
     ])
 
 
+def robust_torch_load(path, device):
+    """Load a checkpoint that may be a normal torch.save archive OR a plain
+    pickle.dump() of a dict whose tensors are still tagged for CUDA storage
+    (as some training notebooks produce when they save straight from GPU).
+
+    Plain `torch.load(..., map_location=device)` can't rescue the second
+    case on a CPU-only machine -- there's no torch archive for map_location
+    to intercept, so it fails with "Invalid magic number" or a CUDA
+    deserialize error. This falls back to a custom Unpickler that redirects
+    torch's internal tensor-rebuild hook to load onto `device` instead.
+    """
+    try:
+        with open(path, "rb") as f:
+            return torch.load(f, map_location=device, weights_only=False)
+    except RuntimeError:
+        class _DeviceUnpickler(pickle.Unpickler):
+            def find_class(self, module, name):
+                if module == "torch.storage" and name == "_load_from_bytes":
+                    return lambda b: torch.load(io.BytesIO(b), map_location=device)
+                return super().find_class(module, name)
+
+        with open(path, "rb") as f:
+            return _DeviceUnpickler(f).load()
+
+
 @st.cache_resource(show_spinner="Downloading model (first run only)...")
 def download_model(url, local_path):
     if not os.path.exists(local_path):
@@ -79,8 +106,7 @@ def download_model(url, local_path):
 
 @st.cache_resource(show_spinner="Loading model...")
 def load_model(local_path, device):
-    with open(local_path, "rb") as f:
-        bundle = torch.load(f, map_location="cpu", weights_only=False)
+    bundle = robust_torch_load(local_path, device)
 
     model = timm.create_model(
         bundle["model_name"], pretrained=False, num_classes=len(bundle["class_names"])
